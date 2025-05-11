@@ -149,47 +149,49 @@ export const WalletDisplay = () => {
     <div>
       <div className="my-6">
         <h1 className="text-4xl font-bold">Vaultora</h1>
-        <p className="text-sm text-muted-foreground ml-1">Your Solana wallet, simplified.</p>
+        <p className="text-sm text-muted-foreground ml-1 mt-2">Your Solana wallet, simplified.</p>
       </div>
-      <Card className="p-0 gap-0 bg-zinc-900/50 hover:cursor-pointer ">
-        <CardTitle
-          onClick={() => setVisiblePhrases(!visiblePhrases)}
-          className="flex items-center justify-between p-6 hover:bg-zinc-900/60 transition-all duration-300 animate-fade-in"
-        >
-          <p>Your Secret Phrase</p>
+      {mnemonic && (
+        <Card className="p-0 gap-0 bg-zinc-900/50 hover:cursor-pointer ">
+          <CardTitle
+            onClick={() => setVisiblePhrases(!visiblePhrases)}
+            className="flex items-center justify-between p-6 hover:bg-zinc-900/60 transition-all duration-300 animate-fade-in"
+          >
+            <p>Your Secret Phrase</p>
 
-          {visiblePhrases ? (
-            <IoIosArrowDown className="rotate-180 transition-all" />
-          ) : (
-            <IoIosArrowDown className="rotate-0 transition-all" />
-          )}
-        </CardTitle>
-        {visiblePhrases && mnemonic && (
-          <>
-            <Separator />
-            <div className=" pt-4 hover:bg-zinc-900/50 transition-all animate-fade-in">
-              <p className="px-6 mb-2 my-0 text-xs text-muted-foreground font-semibold uppercase font-mono">
-                Remember keep your secret phrase safe. Never share it with anyone
-              </p>
-              <CardContent
-                className="gap-0 p-4 bg-black/60 mx-4 mb-4 rounded-lg"
-                onClick={() => copyToClipboard()}
-              >
-                <div className="grid grid-cols-4 gap-4">
-                  {mnemonic.split(' ').map((phrase, index) => (
-                    <p key={index} className=" font-mono p-2 px-3 bg-zinc-900/30 rounded-lg ">
-                      {index + 1}. {phrase}
-                    </p>
-                  ))}
-                </div>
-                <p className="flex justify-end text-xs font-semibolds text-muted-foreground font-mono px-2 pt-4">
-                  Click anywhere to copy.
+            {visiblePhrases ? (
+              <IoIosArrowDown className="rotate-180 transition-all" />
+            ) : (
+              <IoIosArrowDown className="rotate-0 transition-all" />
+            )}
+          </CardTitle>
+          {visiblePhrases && mnemonic && (
+            <>
+              <Separator />
+              <div className=" pt-4 hover:bg-zinc-900/50 transition-all animate-fade-in">
+                <p className="px-6 mb-2 my-0 text-xs text-muted-foreground font-semibold uppercase font-mono">
+                  Remember keep your secret phrase safe. Never share it with anyone
                 </p>
-              </CardContent>
-            </div>
-          </>
-        )}
-      </Card>
+                <CardContent
+                  className="gap-0 p-4 bg-black/60 mx-4 mb-4 rounded-lg"
+                  onClick={() => copyToClipboard()}
+                >
+                  <div className="grid grid-cols-4 gap-4">
+                    {mnemonic.split(' ').map((phrase, index) => (
+                      <p key={index} className=" font-mono p-2 px-3 bg-zinc-900/30 rounded-lg ">
+                        {index + 1}. {phrase}
+                      </p>
+                    ))}
+                  </div>
+                  <p className="flex justify-end text-xs font-semibolds text-muted-foreground font-mono px-2 pt-4">
+                    Click anywhere to copy.
+                  </p>
+                </CardContent>
+              </div>
+            </>
+          )}
+        </Card>
+      )}
 
       <div className="flex items-center justify-between my-4 mt-8">
         <h1 className="text-xl">Solana Wallet</h1>
@@ -204,7 +206,7 @@ export const WalletDisplay = () => {
             </Button>
           )}
           <Button
-            onClick={() => (mnemonic ? handleGenerateWallet() : handleAddWallet)}
+            onClick={() => (!mnemonic ? handleGenerateWallet() : handleAddWallet())}
             className="bg-zinc-900/50 hover:bg-zinc-900/90 hover:cursor-pointer backdrop-blur-md border border-white/5 text-white"
           >
             {mnemonic ? 'Add wallet' : 'Generate Wallet'}
@@ -212,6 +214,12 @@ export const WalletDisplay = () => {
           </Button>
         </div>
       </div>
+      {wallets.length < 1 && (
+        <h1 className=" items-center text-center mt-72 font-mono text-sm text-muted-foreground">
+          You have no wallets. <br />
+          Wallets will be visible here.
+        </h1>
+      )}
       <motion.div
         initial={{ opacity: 0, y: -20 }}
         animate={{ opacity: 1, y: 0 }}
