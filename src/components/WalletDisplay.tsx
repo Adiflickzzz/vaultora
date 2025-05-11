@@ -23,6 +23,7 @@ import {
 import { Card, CardContent, CardTitle } from './ui/card';
 import { Separator } from './ui/separator';
 import { toast } from 'sonner';
+import { Badge } from './ui/badge';
 
 interface Wallet {
   publicKey: string;
@@ -101,6 +102,7 @@ export const WalletDisplay = () => {
     setWallets(updatedWallets);
     setVisiblePrivateKeys(visiblePrivateKeys.filter((_, i) => i !== index));
     localStorage.setItem('wallets', JSON.stringify(updatedWallets));
+    toast.success('Wallet deleted !');
   };
 
   const handleGenerateWallet = () => {
@@ -115,6 +117,7 @@ export const WalletDisplay = () => {
       localStorage.setItem('wallets', JSON.stringify(updatedWallets));
       localStorage.setItem('mnemonic', JSON.stringify(newMnemonic));
       localStorage.setItem('index', JSON.stringify(walletIndex));
+      toast.success('Wallet added !');
     }
   };
 
@@ -129,6 +132,7 @@ export const WalletDisplay = () => {
         setVisiblePrivateKeys([...visiblePrivateKeys, false]);
         localStorage.setItem('wallets', JSON.stringify(updatedWallets));
         localStorage.setItem('index', JSON.stringify(walletIndex));
+        toast.success('Wallet added !');
       }
     } else {
       toast.error('Something went wrong. Try again !');
@@ -148,14 +152,19 @@ export const WalletDisplay = () => {
   return (
     <div>
       <div className="my-6">
-        <h1 className="text-4xl font-bold">Vaultora</h1>
+        <div className="flex items-center gap-2">
+          <h1 className="text-4xl font-bold">Vaultora</h1>
+          <Badge className="mt-0.5 bg-zinc-900/40 border border-white/10 text-xs text-white">
+            v1.0
+          </Badge>
+        </div>
         <p className="text-sm text-muted-foreground ml-1 mt-2">Your Solana wallet, simplified.</p>
       </div>
       {mnemonic && (
-        <Card className="p-0 gap-0 bg-zinc-900/50 hover:cursor-pointer ">
+        <Card className="p-0 gap-0 bg-zinc-900/50 hover:cursor-pointer">
           <CardTitle
             onClick={() => setVisiblePhrases(!visiblePhrases)}
-            className="flex items-center justify-between p-6 hover:bg-zinc-900/60 transition-all duration-300 animate-fade-in"
+            className="flex items-center justify-between p-6 hover:bg-zinc-900/60 hover:rounded-lg transition-all duration-300 animate-fade-in"
           >
             <p>Your Secret Phrase</p>
 
@@ -217,7 +226,7 @@ export const WalletDisplay = () => {
       {wallets.length < 1 && (
         <h1 className=" items-center text-center mt-72 font-mono text-sm text-muted-foreground">
           You have no wallets. <br />
-          Wallets will be visible here.
+          Active wallets will be visible here.
         </h1>
       )}
       <motion.div
