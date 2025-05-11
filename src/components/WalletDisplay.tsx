@@ -1,5 +1,5 @@
 'use client';
-import React, { useEffect, useState, useTransition } from 'react';
+import React, { useEffect, useState } from 'react';
 
 import { generateMnemonic, mnemonicToSeedSync } from 'bip39';
 import { derivePath } from 'ed25519-hd-key';
@@ -10,16 +10,8 @@ import nacl from 'tweetnacl';
 import { IoIosArrowDown } from 'react-icons/io';
 import { motion } from 'motion/react';
 import { VscEye, VscEyeClosed } from 'react-icons/vsc';
-import { ArrowDown, CirclePlus, Copy, Trash2 } from 'lucide-react';
+import { CirclePlus, Copy, Trash2 } from 'lucide-react';
 import { Button } from './ui/button';
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuLabel,
-  DropdownMenuSeparator,
-  DropdownMenuTrigger,
-} from '@/components/ui/dropdown-menu';
 import { Card, CardContent, CardTitle } from './ui/card';
 import { Separator } from './ui/separator';
 import { toast } from 'sonner';
@@ -29,7 +21,6 @@ interface Wallet {
   publicKey: string;
   privateKey: string;
 }
-[];
 
 export const WalletDisplay = () => {
   const [wallets, setWallets] = useState<Wallet[]>([]);
@@ -86,6 +77,7 @@ export const WalletDisplay = () => {
       };
     } catch (err) {
       toast.error('Something went wrong.Try again!');
+      console.log(err);
       return null;
     }
   };
