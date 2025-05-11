@@ -1,16 +1,28 @@
 'use client';
 import React, { useEffect, useState, useTransition } from 'react';
-import { toast } from 'sonner';
-import { VscEye, VscEyeClosed } from 'react-icons/vsc';
-import { Button } from './ui/button';
-import { Copy, Trash2 } from 'lucide-react';
-import { motion } from 'motion/react';
 
 import { generateMnemonic, mnemonicToSeedSync } from 'bip39';
 import { derivePath } from 'ed25519-hd-key';
 import { Keypair } from '@solana/web3.js';
 import bs58 from 'bs58';
 import nacl from 'tweetnacl';
+
+import { IoIosArrowDown } from 'react-icons/io';
+import { motion } from 'motion/react';
+import { VscEye, VscEyeClosed } from 'react-icons/vsc';
+import { ArrowDown, CirclePlus, Copy, Trash2 } from 'lucide-react';
+import { Button } from './ui/button';
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuLabel,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from '@/components/ui/dropdown-menu';
+import { Card, CardContent, CardTitle } from './ui/card';
+import { Separator } from './ui/separator';
+import { toast } from 'sonner';
 
 interface Wallet {
   publicKey: string;
@@ -23,7 +35,7 @@ export const WalletDisplay = () => {
   const [mnemonic, setMnemonic] = useState<string>();
   const [walletIndex, setWalletIndex] = useState(0);
   const [visiblePrivateKeys, setVisiblePrivateKeys] = useState<boolean[]>([]);
-  const [visiblePhrases, setVisiblePhrases] = useState<boolean[]>([]);
+  const [visiblePhrases, setVisiblePhrases] = useState<boolean>(false);
 
   const [isLoading, setIsLoading] = useState(true);
 
@@ -135,6 +147,71 @@ export const WalletDisplay = () => {
 
   return (
     <div>
+      <div className="my-6">
+        <h1 className="text-4xl font-bold">Vaultora</h1>
+        <p className="text-sm text-muted-foreground ml-1">Your Solana wallet, simplified.</p>
+      </div>
+      <Card className="p-0 gap-0 bg-zinc-900/50 hover:cursor-pointer ">
+        <CardTitle
+          onClick={() => setVisiblePhrases(!visiblePhrases)}
+          className="flex items-center justify-between p-6 hover:bg-zinc-900/60 transition-all duration-300 animate-fade-in"
+        >
+          <p>Your Secret Phrase</p>
+
+          {visiblePhrases ? (
+            <IoIosArrowDown className="rotate-180 transition-all" />
+          ) : (
+            <IoIosArrowDown className="rotate-0 transition-all" />
+          )}
+        </CardTitle>
+        {visiblePhrases && mnemonic && (
+          <>
+            <Separator />
+            <div className=" pt-4 hover:bg-zinc-900/50 transition-all animate-fade-in">
+              <p className="px-6 mb-2 my-0 text-xs text-muted-foreground font-semibold uppercase font-mono">
+                Remember keep your secret phrase safe. Never share it with anyone
+              </p>
+              <CardContent
+                className="gap-0 p-4 bg-black/60 mx-4 mb-4 rounded-lg"
+                onClick={() => copyToClipboard()}
+              >
+                <div className="grid grid-cols-4 gap-4">
+                  {mnemonic.split(' ').map((phrase, index) => (
+                    <p key={index} className=" font-mono p-2 px-3 bg-zinc-900/30 rounded-lg ">
+                      {index + 1}. {phrase}
+                    </p>
+                  ))}
+                </div>
+                <p className="flex justify-end text-xs font-semibolds text-muted-foreground font-mono px-2 pt-4">
+                  Click anywhere to copy.
+                </p>
+              </CardContent>
+            </div>
+          </>
+        )}
+      </Card>
+
+      <div className="flex items-center justify-between my-4 mt-8">
+        <h1 className="text-xl">Solana Wallet</h1>
+        <div className="flex items-center gap-2">
+          {wallets.length > 0 && (
+            <Button
+              onClick={() => handleClearAllWallets()}
+              className="bg-red-500/80 hover:bg-red-500 hover:cursor-pointer backdrop-blur-md text-white text-xs"
+            >
+              <Trash2 className="size-4" />
+              Clear all
+            </Button>
+          )}
+          <Button
+            onClick={() => (mnemonic ? handleGenerateWallet() : handleAddWallet)}
+            className="bg-zinc-900/50 hover:bg-zinc-900/90 hover:cursor-pointer backdrop-blur-md border border-white/5 text-white"
+          >
+            {mnemonic ? 'Add wallet' : 'Generate Wallet'}
+            <CirclePlus />
+          </Button>
+        </div>
+      </div>
       <motion.div
         initial={{ opacity: 0, y: -20 }}
         animate={{ opacity: 1, y: 0 }}
@@ -154,7 +231,7 @@ export const WalletDisplay = () => {
                   duration: 0.3 + i * 0.1,
                   ease: 'easeInOut',
                 }}
-                className="bg-zinc-900/50 backdrop-blur-md border border-white/5 rounded-xl p-5 mb-5 transition-all duration-300 hover:bg-zinc-900/70 animate-fade-in"
+                className="bg-zinc-900/50 backdrop-blur-md border border-white/5 rounded-xl p-5 mb-5 transition-all duration-300 animate-fade-in"
               >
                 <div className="flex items-center justify-between">
                   <h1 className="text-2xl p-1 font-semibold">Wallet {i + 1}</h1>
