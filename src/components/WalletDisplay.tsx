@@ -9,6 +9,7 @@ import nacl from 'tweetnacl';
 
 import { IoIosArrowDown } from 'react-icons/io';
 import { motion } from 'motion/react';
+import { HiOutlineCube } from 'react-icons/hi';
 import { VscEye, VscEyeClosed } from 'react-icons/vsc';
 import { CirclePlus, Copy, Trash2 } from 'lucide-react';
 import { Button } from './ui/button';
@@ -145,8 +146,11 @@ export const WalletDisplay = () => {
     <div>
       <div className="my-6">
         <div className="flex items-center gap-2">
-          <h1 className="text-4xl font-bold">Vaultora</h1>
-          <Badge className="mt-0.5 bg-zinc-900/40 border border-white/10 text-xs text-white">
+          <h1 className="text-4xl font-bold flex items-center gap-1.5 ">
+            <HiOutlineCube className="rotate-180" />
+            {`Vaultora`}
+          </h1>
+          <Badge className="mt-2 bg-zinc-900/40 border border-white/10 text-xs text-white">
             v1.0
           </Badge>
         </div>
