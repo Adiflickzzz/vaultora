@@ -1,6 +1,9 @@
-import { WalletGenerate } from '@/components/WalletDisplay';
-import Image from 'next/image';
+import { WalletDisplay } from '@/components/WalletDisplay';
 
 export default function Home() {
-  return <div>Home page</div>;
+  return (
+    <div className="container max-w-4xl mx-auto px-4 py-8">
+      <WalletDisplay />
+    </div>
+  );
 }
