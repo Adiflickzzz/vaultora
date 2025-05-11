@@ -17,6 +17,7 @@ import { Card, CardContent, CardTitle } from './ui/card';
 import { Separator } from './ui/separator';
 import { toast } from 'sonner';
 import { Badge } from './ui/badge';
+import { useIsMobile } from '@/hooks/use-mobile';
 
 interface Wallet {
   publicKey: string;
@@ -31,6 +32,8 @@ export const WalletDisplay = () => {
   const [visiblePhrases, setVisiblePhrases] = useState<boolean>(false);
 
   const [isLoading, setIsLoading] = useState(true);
+
+  const isMobile = useIsMobile();
 
   useEffect(() => {
     const storedMnemonic = localStorage.getItem('mnemonic');
@@ -144,7 +147,7 @@ export const WalletDisplay = () => {
 
   return (
     <div>
-      <div className="my-6">
+      <div className="mb-6">
         <div className="flex items-center gap-2">
           <h1 className="text-4xl font-bold flex items-center gap-1.5 ">
             <HiOutlineCube className="rotate-180" />
@@ -181,9 +184,12 @@ export const WalletDisplay = () => {
                   className="gap-0 p-4 bg-black/60 mx-4 mb-4 rounded-lg"
                   onClick={() => copyToClipboard()}
                 >
-                  <div className="grid grid-cols-4 gap-4">
+                  <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 line-clamp-1 ">
                     {mnemonic.split(' ').map((phrase, index) => (
-                      <p key={index} className=" font-mono p-2 px-3 bg-zinc-900/30 rounded-lg ">
+                      <p
+                        key={index}
+                        className=" font-mono tracking-tighter md:tracking-normal p-2 px-3 bg-zinc-900/30 rounded-lg "
+                      >
                         {index + 1}. {phrase}
                       </p>
                     ))}
@@ -199,7 +205,7 @@ export const WalletDisplay = () => {
       )}
 
       <div className="flex items-center justify-between my-4 mt-8">
-        <h1 className="text-xl">Solana Wallet</h1>
+        <h1 className="text-lg line-clamp-1">Solana Wallet</h1>
         <div className="flex items-center gap-2">
           {wallets.length > 0 && (
             <Button
@@ -214,7 +220,7 @@ export const WalletDisplay = () => {
             onClick={() => (!mnemonic ? handleGenerateWallet() : handleAddWallet())}
             className="bg-zinc-900/50 hover:bg-zinc-900/90 hover:cursor-pointer backdrop-blur-md border border-white/5 text-white"
           >
-            {mnemonic ? 'Add wallet' : 'Generate Wallet'}
+            {!isMobile && (mnemonic ? 'Add wallet' : 'Generate Wallet')}
             <CirclePlus />
           </Button>
         </div>
@@ -260,7 +266,9 @@ export const WalletDisplay = () => {
                 <div className="mt-4">
                   <p className="uppercase text-xs text-muted-foreground  p-1 py-2">Public key</p>
                   <div className="bg-zinc-950 border border-white/5 rounded-lg p-3 mb-4 flex items-center justify-between">
-                    <p className="text-xs font-mono tracking-widest">{wallet.publicKey}</p>
+                    <p className="text-xs font-mono tracking-widest truncate mr-2">
+                      {wallet.publicKey}
+                    </p>
 
                     <button
                       onClick={() => {
@@ -288,7 +296,7 @@ export const WalletDisplay = () => {
                     </button>
                   </div>
                   <div className="bg-zinc-950 border border-white/5 rounded-lg p-3 mb-2 flex items-center justify-between">
-                    <p className="text-xs">
+                    <p className="text-xs truncate mr-2">
                       {visiblePrivateKeys[i]
                         ? wallet.privateKey
                         : '•'.repeat(wallet.privateKey.length)}
