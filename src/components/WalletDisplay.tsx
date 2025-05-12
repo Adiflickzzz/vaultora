@@ -6,6 +6,7 @@ import { derivePath } from 'ed25519-hd-key';
 import { Keypair } from '@solana/web3.js';
 import bs58 from 'bs58';
 import nacl from 'tweetnacl';
+import { ethers } from "ethers"
 
 import { IoIosArrowDown } from 'react-icons/io';
 import { motion } from 'motion/react';
@@ -26,6 +27,7 @@ interface Wallet {
 
 export const WalletDisplay = () => {
   const [wallets, setWallets] = useState<Wallet[]>([]);
+  const [walletType,setWalletType] = useState(501);
   const [mnemonic, setMnemonic] = useState<string>();
   const [walletIndex, setWalletIndex] = useState(0);
   const [visiblePrivateKeys, setVisiblePrivateKeys] = useState<boolean[]>([]);
@@ -38,6 +40,7 @@ export const WalletDisplay = () => {
   useEffect(() => {
     const storedMnemonic = localStorage.getItem('mnemonic');
     const storedWallets = localStorage.getItem('wallets');
+    setWalletType(501)
 
     if (storedMnemonic && storedWallets) {
       setMnemonic(JSON.parse(storedMnemonic));
@@ -55,22 +58,36 @@ export const WalletDisplay = () => {
     }
   };
 
-  const generateWallet = (mnemonic: string, walletIndex: number, accountType: number) => {
+  const generateWallet = (mnemonic: string, walletIndex: number, walletType: number) => {
     try {
       const seed = mnemonicToSeedSync(mnemonic);
-      const path = `m/44'/${accountType}'/${walletIndex}'/0'`;
 
-      const derivedPath = derivePath(path, seed.toString('hex')).key;
+      let path = ''; // Declare in outer scope
+      
+      if (walletType === 501) {
+        path = `m/44'/${walletType}'/${walletIndex}'/0'`;
+      } else {
+        path = `m/44'/${walletType}'/0'/${walletIndex}'`;
+      }
+      
+      const derivedSeed = derivePath(path, seed.toString('hex')).key;
+      
 
       let publicKeyEncoded: string;
       let privateKeyEncoded: string;
 
-      if (accountType === 501) {
-        const { secretKey } = nacl.sign.keyPair.fromSeed(derivedPath);
+      if (walletType === 501) {
+        const { secretKey } = nacl.sign.keyPair.fromSeed(derivedSeed);
         const keyPair = Keypair.fromSecretKey(secretKey);
 
         privateKeyEncoded = bs58.encode(secretKey);
         publicKeyEncoded = keyPair.publicKey.toBase58();
+      }else if(walletType === 60){
+        const privateKey = Buffer.from(derivedSeed).toString("hex");
+        privateKeyEncoded = privateKey;
+
+        const wallet = new ethers.Wallet(privateKey);
+        publicKeyEncoded = wallet.address;
       } else {
         toast.error('We do not support such wallet id');
         return null;
@@ -104,7 +121,7 @@ export const WalletDisplay = () => {
   const handleGenerateWallet = () => {
     const newMnemonic = generateMnemonic(128);
     setMnemonic(newMnemonic);
-    const wallet = generateWallet(newMnemonic, walletIndex, 501);
+    const wallet = generateWallet(newMnemonic, walletIndex, walletType);
     if (wallet) {
       const updatedWallets = [...wallets, wallet];
       setWallets(updatedWallets);
@@ -120,7 +137,7 @@ export const WalletDisplay = () => {
   const handleAddWallet = () => {
     console.log(mnemonic);
     if (mnemonic) {
-      const wallet = generateWallet(mnemonic, walletIndex, 501);
+      const wallet = generateWallet(mnemonic, walletIndex, walletType);
       if (wallet) {
         const updatedWallets = [...wallets, wallet];
         setWallets(updatedWallets);
@@ -203,8 +220,34 @@ export const WalletDisplay = () => {
           )}
         </Card>
       )}
-
-      <div className="flex items-center justify-between my-4 mt-8">
+      {wallets.length < 1 ? (
+       <div>
+          {!mnemonic && (
+            <>
+            <h1 className='mb-4 text-2xl font-semibold'>Select a wallet to continue ~</h1>
+            <div className='flex items-center gap-2'>
+              <Button onClick={() => {
+                setWalletType(60)
+                handleGenerateWallet()
+              }}>
+                Solana
+              </Button>
+              <Button onClick={() => {
+                setWalletType(501)
+                handleGenerateWallet()
+              }}>
+                Ethereum
+              </Button>
+            </div>
+            </>
+          )}
+          <h1 className="items-center text-center mt-72 font-mono text-sm text-muted-foreground">
+            You have no wallets. <br />
+            Active wallets will be visible here.
+          </h1>
+        </div>
+      ):(
+        <div className="flex items-center justify-between my-4 mt-8">
         <h1 className="text-lg line-clamp-1">Solana Wallet</h1>
         <div className="flex items-center gap-2">
           {wallets.length > 0 && (
@@ -225,11 +268,6 @@ export const WalletDisplay = () => {
           </Button>
         </div>
       </div>
-      {wallets.length < 1 && (
-        <h1 className=" items-center text-center mt-72 font-mono text-sm text-muted-foreground">
-          You have no wallets. <br />
-          Active wallets will be visible here.
-        </h1>
       )}
       <motion.div
         initial={{ opacity: 0, y: -20 }}
